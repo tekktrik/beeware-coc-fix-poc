@@ -62,7 +62,7 @@ jobs:
         fi
 
         if [[ "${{ matrix.full_repo }}" != "tekktrik/test-target-repo" ]]; then
-            echo "Testing only on this repository ($GITHUB_REPOSITORY)..."
+            echo "Testing only on repository tekktrik/test-target-repo for debigging..."
             exit 0
         fi
 
