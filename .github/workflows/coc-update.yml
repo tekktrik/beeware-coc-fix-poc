@@ -63,7 +63,7 @@ jobs:
         fi
 
         if [[ "${{ matrix.full_repo }}" != "tekktrik/test-target-repo" ]]; then
-            echo "Testing only on repository tekktrik/test-target-repo for debigging..."
+            echo "Testing only on repository tekktrik/test-target-repo for debugging..."
             exit 0
         fi
 
