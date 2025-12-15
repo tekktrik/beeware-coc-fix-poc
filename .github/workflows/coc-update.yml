@@ -33,7 +33,6 @@ jobs:
       run: |
         repo_list=$(gh repo list $GITHUB_REPOSITORY_OWNER --no-archived --json nameWithOwner --jq ".[].nameWithOwner")
         jq_repo_list=$(jq -c -n '$ARGS.positional' --args ${repo_list[@]})
-        echo $jq_repo_list
         echo repo_list="$jq_repo_list" >> $GITHUB_OUTPUT
 
   update-coc:
@@ -43,46 +42,56 @@ jobs:
       matrix:
         full_repo: ${{ fromJson(needs.plan-coc-update.outputs.repo_list) }}
     steps:
-      - name: Announce value
-        run: |
-          echo ${{ matrix.full_repo }}
-    # - name: Checkout this repo
-    #   uses: actions/checkout@v6
-    # - name: Checkout repo to be updated
-    #   uses: actions/checkout@v6
-    # - name: Update Code of Conduct
-    #   env:
-    #     GH_TOKEN: ${{ secrets.BRUTUS_PAT_TOKEN }}
-    #   run: |
-    #     # Ignore changes to this repo
-    #     if [[ "${{ matrix.full_repo }}" == "$GITHUB_REPOSITORY" ]]; then
-    #         echo "Skipping this repository ($GITHUB_REPOSITORY)..."
-    #         continue
-    #     fi
+    - name: Checkout this repo
+      uses: actions/checkout@v6
+      with:
+        path: sourcerepo
+    - name: Checkout repo to be updated
+      uses: actions/checkout@v6
+      with:
+        repository: ${{ matrix.full_repo }}
+        path: targetrepo
+    - name: Update Code of Conduct
+      env:
+        GH_TOKEN: ${{ secrets.BRUTUS_PAT_TOKEN }}
+      run: |
+        # Ignore changes to this repo
+        if [[ "${{ matrix.full_repo }}" == "$GITHUB_REPOSITORY" ]]; then
+            echo "Skipping this repository ($GITHUB_REPOSITORY)..."
+            continue
+        fi
 
-    #     # Set the author information to Brutus
-    #     git config --local user.email "brutus@beeware.org"
-    #     git config --local user.name "Brutus (robot)"
+        if [[ "${{ matrix.full_repo }}" != "tekktrik/test-target-repo" ]]; then
+            echo "Testing only on this repository ($GITHUB_REPOSITORY)..."
+            continue
+        fi
 
-    #     # Make new branch for change
-    #     echo "Creating new branch..."
-    #     timestamp=$(date +%m%d%Y-%H%M%S)
-    #     branch_name="coc-update-$timestamp"
-    #     git checkout -b $branch_name
+        # Work within target repo
+        cd targetrepo
 
-    #     # Add the new code of conduct
-    #     echo "Replacing Code of Conduct..."
-    #     cp ../CODE_OF_CONDUCT.md .
+        # Set the author information to Brutus
+        git config --local user.email "brutus@beeware.org"
+        git config --local user.name "Brutus (robot)"
 
-    #     # Commit and push the update
-    #     echo "Syncing updates to remote..."
-    #     git add CODE_OF_CONDUCT.md
-    #     git commit -m "Updated Code of Conduct ($GITHUB_REPOSITORY, ${{ needs.plan-coc-update.outputs.commit_hash }})"
-    #     git push --set-upstream origin "$branch_name"
+        # Make new branch for change
+        echo "Creating new branch..."
+        timestamp=$(date +%m%d%Y-%H%M%S)
+        branch_name="coc-update-$timestamp"
+        git checkout -b $branch_name
 
-    #     # Create the pull request
-    #     echo "Creating pull request..."
-    #     gh pr create \
-    #           --repo ${{ matrix.full_repo }} \
-    #           --title "Update Code of Conduct" \
-    #           --body "Updated via $GITHUB_REPOSITORY (${{ needs.plan-coc-update.outputs.commit_hash }})"
+        # Add the new code of conduct
+        echo "Replacing Code of Conduct..."
+        cp ../sourcerepo/CODE_OF_CONDUCT.md .
+
+        # Commit and push the update
+        echo "Syncing updates to remote..."
+        git add CODE_OF_CONDUCT.md
+        git commit -m "Updated Code of Conduct ($GITHUB_REPOSITORY, ${{ needs.plan-coc-update.outputs.commit_hash }})"
+        git push --set-upstream origin "$branch_name"
+
+        # Create the pull request
+        echo "Creating pull request..."
+        gh pr create \
+              --repo ${{ matrix.full_repo }} \
+              --title "Update Code of Conduct" \
+              --body "Updated via $GITHUB_REPOSITORY (${{ needs.plan-coc-update.outputs.commit_hash }})"
