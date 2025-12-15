@@ -58,12 +58,12 @@ jobs:
         # Ignore changes to this repo
         if [[ "${{ matrix.full_repo }}" == "$GITHUB_REPOSITORY" ]]; then
             echo "Skipping this repository ($GITHUB_REPOSITORY)..."
-            continue
+            exit 0
         fi
 
         if [[ "${{ matrix.full_repo }}" != "tekktrik/test-target-repo" ]]; then
             echo "Testing only on this repository ($GITHUB_REPOSITORY)..."
-            continue
+            exit 0
         fi
 
         # Work within target repo
