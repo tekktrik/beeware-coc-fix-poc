@@ -51,6 +51,7 @@ jobs:
       with:
         repository: ${{ matrix.full_repo }}
         path: targetrepo
+        token: ${{ secrets.BRUTUS_PAT_TOKEN }}
     - name: Update Code of Conduct
       env:
         GH_TOKEN: ${{ secrets.BRUTUS_PAT_TOKEN }}
