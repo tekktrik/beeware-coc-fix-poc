@@ -85,7 +85,7 @@ jobs:
         cp ../sourcerepo/CODE_OF_CONDUCT.md .
 
         # Prepend the edit warning to the file
-        WARNING_TEXT=$(< ../sourcerepo/coc-edit-warning.txt)
+        WARNING_TEXT=$(< ../sourcerepo/.github/workflows/coc-edit-warning.txt)
         printf '%s\n\n' "$WARNING_TEXT" | sed -i '0r /dev/stdin' CODE_OF_CONDUCT.md
 
         # Commit and push the update
