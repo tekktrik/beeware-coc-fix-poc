@@ -85,6 +85,7 @@ jobs:
         printf '%s\n\n' "$WARNING_TEXT" | sed -i '0r /dev/stdin' CODE_OF_CONDUCT.md
     - name: Check diff for need to push changes
       id: check-no-change
+      working-directory: ./targetrepo
       run: |
         echo "changed=0" >> "$GITHUB_OUTPUT"
         git diff --exit-code --quiet CODE_OF_CONDUCT.md || echo "changed=1" >> "$GITHUB_OUTPUT"
