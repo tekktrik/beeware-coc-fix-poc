@@ -1,2 +1,2 @@
 # Test file
-same diff
+different diff
